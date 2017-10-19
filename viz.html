@@ -1,0 +1,28 @@
+<html>
+<head>
+	<title>
+	Wow! Line charts!		
+	</title>
+</head>
+<body>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+Yeah!
+<div id="chart1"></div>
+
+
+<script language="javascript">
+	var chart_name = "chart1";
+
+	var c = d3.select("#" + chart_name);
+	var c_svg = c.append("svg")
+		.attr("width", 500)
+		.attr("height", 500);
+
+	d3.tsv("/test.txt", function(data) {
+		console.log(data);
+	});
+
+</script> 
+
+</body>
+</html>
