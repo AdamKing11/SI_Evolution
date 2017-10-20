@@ -1,27 +1,79 @@
 <html>
+
+<httpProtocol>
+ <customHeaders>
+ <add name="Access-Control-Allow-Origin" value="*" />
+ <add name="Access-Control-Allow-Methods" value="GET, POST" />
+</customHeaders>
+</httpProtocol> 
+
 <head>
 	<title>
 	Wow! Line charts!		
 	</title>
 </head>
 <body>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="d3.v4.min.js"></script>
 Yeah!
 <div id="chart1"></div>
 
 
 <script language="javascript">
-	var chart_name = "chart1";
+	var data_tsv = "simulation.txt";
+	var c = d3.select("#chart1");
 
-	var c = d3.select("#" + chart_name);
+	var x_off = 50;
+
 	var c_svg = c.append("svg")
 		.attr("width", 500)
-		.attr("height", 500);
+		.attr("height", 500)
+			
+	d3.tsv(data_tsv, function(data) {	
+	
+		var x_axis_scale = d3.scaleLinear().domain([1,8]).range([x_off, 475]);
+		var y_axis_scale = d3.scaleLinear().domain([4,0]).range([x_off, 475]);
+		// x axis
+		c_svg.append("g")
+			.call(d3.axisBottom(x_axis_scale))
+			.attr("transform", "translate(0,475)");
+		
+		c_svg.append("g")
+			.call(d3.axisLeft(y_axis_scale))
+			.attr("transform", "translate(50,0)");
 
-	d3.tsv("/test.txt", function(data) {
-		console.log(data);
+		var data_dict = {};
+		data.forEach(function(d) {
+			if (data_dict[+d.i] === undefined) { data_dict[+d.i] = []; };
+
+			data_dict[+d.i].push({s : +d.s, v : +d.v} );
+		});
+
+		var sorted_iterations = Object.keys(data_dict).map(Number);
+		//console.log(sorted_iterations);
+		// start
+		c_svg.selectAll("circle")
+			.data(data_dict[sorted_iterations[0]])
+			.enter()
+			.append("circle")
+			.attr("cx", function(d) { return x_axis_scale(d.s); })
+			.attr("cy", function(d) { return y_axis_scale(d.v); }) //450 - (d.v * 100)
+			.attr("r", function(d) { return 5 });	
+		
+		//
+		for (var i = 1; i < sorted_iterations.length; ++i) {
+			//console.log(sorted_iterations[i]);
+			c_svg.selectAll("circle")
+				.data(data_dict[sorted_iterations[i]])
+				.transition()
+				.duration(20)
+				.delay(i * 20)
+				.attr("cx", function(d) { return x_axis_scale(d.s); })
+				.attr("cy", function(d) { return y_axis_scale(d.v); }) //450 - (d.v * 100)
+				.attr("r", function(d) { return 5 });	
+		}
 	});
 
+	
 </script> 
 
 </body>
