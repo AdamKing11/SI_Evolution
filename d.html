@@ -1,0 +1,105 @@
+<html>
+
+<head>
+	<title>
+	Wow! Information!		
+	</title>
+</head>
+<body>
+<script language="javascript">
+	
+function shuffle(l) {
+	return l.sort(function(a, b) {return 0.5 - Math.random()});
+};
+
+function range(n) {
+	return Array.apply(null, Array(n)).map(function (_, i) {return i;});
+};
+
+function start_lex(lex_size, word_len) {
+	lex = [];
+	for (var i = 0; i < lex_size; i++) {
+		new_word = range(word_len);
+		lex.push(new_word);
+	}
+	return lex;
+};
+
+function longest_word(lex) {
+	var longest_len = 0;
+	for (var i = 0; i < lex.length; i++) {
+		if (lex[i].length > longest_len) { longest_len = lex[i].length; }
+	};
+	return longest_len;
+}
+
+function count(l) {
+	var counter = {};
+	for (var i = 0; i < l.length; i++) {
+		if (counter[l[i]] === undefined) {counter[l[i]] = 0; };
+		counter[l[i]]++;	
+	};
+	return counter;
+};
+
+function segmental_entropy(lex) {
+	var longest = longest_word(lex);
+
+	var seg_counts = {};
+	for (var i = 0; i < lex.length; i++) {
+		var cur_word = lex[i];
+		for (var j = 0; j < cur_word.length; j++) {
+			var key = cur_word.slice(0,j);
+			if (seg_counts[j] === undefined) {seg_counts[j] = []; };
+
+			seg_counts[j].push(key)
+		}
+	}
+	console.log(seg_counts[0]);
+	//console.log(count(seg_counts[1]));
+}; 
+
+
+function segmental_information(lex) {
+	var prefix_counts = {};
+
+	// count the "prefixes"
+	for (var i = 0; i < lex.length; i++) {
+		var cur_word = lex[i];
+		for (var j = 0; j < cur_word.length; j++) {
+			var prefix = cur_word.slice(0, j+1)
+			if (prefix_counts[prefix] === undefined) {prefix_counts[prefix] = 0; };
+			prefix_counts[prefix]++;
+		}
+	}
+
+	var lexical_info = {};
+	//calc the segmental info based on prefix count vs prefix[:-1] count
+	for (var i = 0; i < lex.length; i++) {
+		var cur_word = lex[i];
+		var word_segment_info = [];
+		for (var j = 0; j < cur_word.length; j++) {
+			var sequence_c = prefix_counts[cur_word.slice(0,j+1)];
+			if (j == 0) {
+				var context_c = lex.length;
+			} else {
+				var context_c = prefix_counts[cur_word.slice(0,j)];
+			}
+			var seg_info = -Math.log(sequence_c/context_c) / Math.log(2);
+			word_segment_info.push(seg_info);
+		}
+		lexical_info[i] = word_segment_info;
+	}	
+	return lexical_info;
+};
+
+lex = start_lex(32, 4);
+console.log(lex[0]);
+
+console.log(longest_word(lex));
+
+segmental_information(lex);
+</script>
+Yeah!
+</body>
+</html>
