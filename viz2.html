@@ -7,6 +7,7 @@
 </head>
 <body>
 <script src="d3.v4.min.js"></script>
+<script src="d3-legend.js"></script>
 <script src="lex.js"></script>
 
 Yeah!
@@ -31,7 +32,7 @@ Word Length: <input type="text" id="word-len" size="6" value="6"> <br>
 
 	var x_axis_scale = d3.scaleLinear().domain([1,8]).range([x_off, 500 - y_off]);
 	var y_axis_scale = d3.scaleLinear().domain([4,0]).range([x_off, 500 - y_off]);
-	var info_type_scale = d3.scaleQuantile().domain([0,1]).range(['red', 'blue']);
+	var info_type_scale = d3.scaleOrdinal().domain(['Lexical','Positional']).range(['red', 'blue']);
 	
 		// x axis
 	c_svg.append("g")
@@ -65,8 +66,9 @@ Word Length: <input type="text" id="word-len" size="6" value="6"> <br>
 			.append("circle")
 			.attr("cx", function(d) { return x_axis_scale(d.position); })
 			.attr("cy", function(d) { return y_axis_scale(d.mean); })
-			.attr("fill", function(d) { return info_type_scale(d.type); }) 
-			.attr("r", function(d) { return 5 });	
+			.attr("fill", function(d) { return info_type_scale(d.type); })
+			.attr("opacity", function(d) { return .75; } )
+			.attr("r", function(d) { return 10; } );	
 	}
 
 	function update_chart(new_ent, transition_len, n_step) {
@@ -82,9 +84,9 @@ Word Length: <input type="text" id="word-len" size="6" value="6"> <br>
 </script> 
 
 <button id = "calc-info" onclick="evol_iter()">Run iterations</button>
-<button id = "animate" onclick="run_animation()">Wow!</button> 
-<button id = "reset" onclick="reset_lex()">Oh no!</button> <br>
-Iterations to do: <input type="text" id="iter-to-do" size="10" value="10">
+<button id = "animate" onclick="run_animation()"> Run Animation!</button> 
+<button id = "reset" onclick="reset_lex()"> Reset </button> <br>
+Iterations to do: <input type="text" id="iter-to-do" size="10" value="100">
 <div id="spinning"></div>
 
 
@@ -111,8 +113,34 @@ Iterations to do: <input type="text" id="iter-to-do" size="10" value="10">
 	var seg_ent = summary_stats(segmental_information(lex));
 
 	draw_initial(seg_ent);
-
 	
+	// draw the legend
+	c_svg.append("g")
+  		.attr("class", "info-legend")
+  		.attr("transform", "translate(390,110)");
+
+	var legendOrdinal = d3.legendColor()
+  		.shape("circle", 3)
+  		.shapePadding(10)
+  		//use cellFilter to hide the "e" cell
+  		//.cellFilter(function(d){ return d.label !== "e" })
+  		.scale(info_type_scale);
+
+	c_svg.select(".info-legend")
+  		.call(legendOrdinal);
+	/*
+	var legend = d3.legendColor()
+  		.labelFormat(d3.format(".2f"))
+  		.useClass(true)
+  		.title("Info Type")
+  		.titleWidth(100)
+  		.scale(info_type_scale);
+
+	c_svg.select(".legendQuant")
+  		.call(legend);
+	*/
+	//
+
 	function evol_iter() {
 		var n = +document.getElementById("iter-to-do").value;
 		spin_svg.selectAll("circle")
@@ -140,6 +168,9 @@ Iterations to do: <input type="text" id="iter-to-do" size="10" value="10">
 			new_ent = entropy_hist[i];
 			update_chart(new_ent, 20, i);
 		};
+		spin_svg.selectAll("circle")
+			.transition()
+			.attr("fill", "red");
 		
 	};
 
@@ -156,6 +187,10 @@ Iterations to do: <input type="text" id="iter-to-do" size="10" value="10">
 			.transition()
 			.duration(10)
     		.text(gen_done);
+    	spin_svg.selectAll("circle")
+    		.transition()
+			.attr("fill", "red");
+
 	};
 </script> 
 

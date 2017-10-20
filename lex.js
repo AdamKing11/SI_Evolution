@@ -73,9 +73,10 @@ function summary_stats(d_dict) {
 		var n = sum(r[i]) / r[i].length;
 		
 		// 0 for lexical
-		s_stats.push({position : i+1, mean : m, type : 1});
 		// 1 for positional
-		s_stats.push({position : i+1, mean : n, type : 0});
+		s_stats.push({position : i+1, mean : n, type : 'Positional'});
+		s_stats.push({position : i+1, mean : m, type : 'Lexical'});
+		
 	}
 	return s_stats;
 };
