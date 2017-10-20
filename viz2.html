@@ -1,12 +1,5 @@
 <html>
 
-<httpProtocol>
- <customHeaders>
- <add name="Access-Control-Allow-Origin" value="*" />
- <add name="Access-Control-Allow-Methods" value="GET, POST" />
-</customHeaders>
-</httpProtocol> 
-
 <head>
 	<title>
 	Wow! Line charts!		
@@ -17,6 +10,11 @@
 <script src="lex.js"></script>
 
 Yeah!
+
+
+Lexicon size: <input type="text" id="lex-size" size="12" value="300"> <br>
+Word Length: <input type="text" id="word-len" size="6" value="6"> <br>
+
 <div id="seg-info"></div>
 
 <script language="javascript">
@@ -33,6 +31,7 @@ Yeah!
 
 	var x_axis_scale = d3.scaleLinear().domain([1,8]).range([x_off, 500 - y_off]);
 	var y_axis_scale = d3.scaleLinear().domain([4,0]).range([x_off, 500 - y_off]);
+	var info_type_scale = d3.scaleQuantile().domain([0,1]).range(['red', 'blue']);
 	
 		// x axis
 	c_svg.append("g")
@@ -65,20 +64,19 @@ Yeah!
 			.enter()
 			.append("circle")
 			.attr("cx", function(d) { return x_axis_scale(d.position); })
-			.attr("cy", function(d) { return y_axis_scale(d.mean); }) 
+			.attr("cy", function(d) { return y_axis_scale(d.mean); })
+			.attr("fill", function(d) { return info_type_scale(d.type); }) 
 			.attr("r", function(d) { return 5 });	
 	}
 
-	function update_graph(new_ent, transition_len, n_step) {
+	function update_chart(new_ent, transition_len, n_step) {
 		c_svg.selectAll("circle")
 			.data(new_ent)
 			.transition()
 			.duration(transition_len)
 			.delay(n_step * transition_len)
 			.attr("cx", function(d) { return x_axis_scale(d.position); })
-			.attr("cy", function(d) { return y_axis_scale(d.mean); })
-			.attr("r", function(d) { return 5 });	
-
+			.attr("cy", function(d) { return y_axis_scale(d.mean); });
 	}
 
 </script> 
@@ -86,7 +84,7 @@ Yeah!
 <button id = "calc-info" onclick="evol_iter()">Run iterations</button>
 <button id = "animate" onclick="run_animation()">Wow!</button> 
 <button id = "reset" onclick="reset_lex()">Oh no!</button> <br>
-<input type="text" id="iter-to-do" size="10" value="10">
+Iterations to do: <input type="text" id="iter-to-do" size="10" value="10">
 <div id="spinning"></div>
 
 
@@ -106,7 +104,10 @@ Yeah!
 	//
 	var entropy_hist = [];
 	var gen_done = 1;
-	var lex = start_lex(400, 8);
+	var lex = new_uniform_lex(
+			document.getElementById("lex-size").value,
+			+document.getElementById("word-len").value 
+			);
 	var seg_ent = summary_stats(segmental_information(lex));
 
 	draw_initial(seg_ent);
@@ -137,7 +138,7 @@ Yeah!
 	function run_animation() {
 		for (var i = 0; i < entropy_hist.length; i++) {
 			new_ent = entropy_hist[i];
-			update_graph(new_ent, 20, i);
+			update_chart(new_ent, 20, i);
 		};
 		
 	};
@@ -145,9 +146,12 @@ Yeah!
 	function reset_lex() {
 		entropy_hist = [];
 		gen_done = 1;
-		lex = start_lex(400, 8);
+		lex = new_uniform_lex(
+			+document.getElementById("lex-size").value,
+			+document.getElementById("word-len").value 
+			);
 		seg_ent = summary_stats(segmental_information(lex));
-		update_graph(seg_ent, 20, 1);
+		update_chart(seg_ent, 20, 1);
 		c_svg.selectAll('.gen')
 			.transition()
 			.duration(10)
