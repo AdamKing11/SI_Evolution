@@ -19,7 +19,8 @@ Yeah!
 
 
 <script language="javascript">
-	var data_tsv = "simulation.txt";
+	//var data_tsv = "simulation.txt";
+	var data_tsv = "https://github.com/AdamKing11/SI_Evolution/blob/master/simulation.txt";
 	var c = d3.select("#chart1");
 
 	var x_off = 50;
@@ -47,7 +48,6 @@ Yeah!
 			
 	d3.tsv(data_tsv, function(data) {	
 	
-		
 		var data_dict = {};
 		data.forEach(function(d) {
 			if (data_dict[+d.i] === undefined) { data_dict[+d.i] = []; };
@@ -78,7 +78,7 @@ Yeah!
 					.duration(transition_len)
 					.delay(i * transition_len)
 					.attr("cx", function(d) { return x_axis_scale(d.s); })
-					.attr("cy", function(d) { return y_axis_scale(d.v); }) //450 - (d.v * 100)
+					.attr("cy", function(d) { return y_axis_scale(d.v); })
 					.attr("r", function(d) { return 5 });	
 			}
 		};
