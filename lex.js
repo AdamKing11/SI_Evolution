@@ -1,13 +1,3 @@
-<html>
-
-<head>
-	<title>
-	Wow! Information!		
-	</title>
-</head>
-<body>
-<script language="javascript">
-	
 function shuffle(l) {
 	return l.sort(function(a, b) {return 0.5 - Math.random()});
 };
@@ -53,10 +43,8 @@ function random_word(lex) {
 
 function summary_stats(d) {
 	var longest = 0;
-	var mean = [];
-	var sd = [];
-	var s = {};
-	
+	var s = [];
+	var s_stats = [];
 	for (var i in d) {
 		cur_word = d[i];
 		if (cur_word.length > longest) { longest = cur_word.length};
@@ -66,11 +54,20 @@ function summary_stats(d) {
 			s[j].push(cur_word[j]);
 		};
 	};
+
 	for (var i = 0; i < longest; i++) {
 		var m = sum(s[i]) / s[i].length;
-		mean.push(m);
+		// sd is too slow with my naive implementation.....
+		/*
+		var standard_d = 0;
+		for (var j in d) {
+			standard_d += Math.pow(d[j][i] - m,2);
+		}
+		standard_d /= d.length;
+		*/
+		s_stats.push({position : i+1, mean : m});
 	}
-	return mean;
+	return s_stats;
 };
 
 function segmental_information(lex) {
@@ -106,10 +103,6 @@ function segmental_information(lex) {
 	return lexical_info;
 };
 
-</script>
-
-<script language="javascript">
-	
 function horizontal_shuffle(lex) {
 	var word_to_shuffle = random_word(lex);
 	var shuffled_word = shuffle(lex[word_to_shuffle]);
@@ -133,21 +126,3 @@ function vertical_shuffle(lex) {
 	lex[word2][char_to_swap] = char1;
 	return lex;
 }
-
-var start_lex = start_lex(32, 4);
-var start_info = segmental_information(start_lex);
-
-var lex = start_lex;
-var info = start_info;
-
-
-console.log(0, summary_stats(info))
-for (var i = 1; i < 10; i++) {
-	lex = horizontal_shuffle(lex);
-	info = segmental_information(lex);
-	console.log(i, summary_stats(info));
-};
-</script>
-Yeah!
-</body>
-</html>

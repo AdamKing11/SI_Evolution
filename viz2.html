@@ -1,0 +1,147 @@
+<html>
+
+<httpProtocol>
+ <customHeaders>
+ <add name="Access-Control-Allow-Origin" value="*" />
+ <add name="Access-Control-Allow-Methods" value="GET, POST" />
+</customHeaders>
+</httpProtocol> 
+
+<head>
+	<title>
+	Wow! Line charts!		
+	</title>
+</head>
+<body>
+<script src="d3.v4.min.js"></script>
+<script src="lex.js"></script>
+
+Yeah!
+<div id="seg-info"></div>
+
+<script language="javascript">
+	var c = d3.select("#seg-info");
+
+	var x_off = 50;
+	var y_off = 25;
+
+	var desired_animation_length = 15000;
+
+	var c_svg = c.append("svg")
+		.attr("width", 500)
+		.attr("height", 500);
+
+	var x_axis_scale = d3.scaleLinear().domain([1,8]).range([x_off, 500 - y_off]);
+	var y_axis_scale = d3.scaleLinear().domain([4,0]).range([x_off, 500 - y_off]);
+	
+		// x axis
+	c_svg.append("g")
+		.call(d3.axisBottom(x_axis_scale).ticks(8))
+		.attr("transform", "translate(0," + (500 - y_off) + ")");
+
+		// y axis
+	c_svg.append("g")
+		.call(d3.axisLeft(y_axis_scale))
+		.attr("transform", "translate(" + x_off + ",0)");
+
+	c_svg.append("text")
+		.attr("x", 425)
+		.attr("y", 50)
+		.attr("font-size", "18px")
+		.attr('text-anchor', 'middle')
+		.text('Generation');
+
+	c_svg.append("text")
+		.attr("x", 425)
+		.attr("y", 70)
+		.attr("font-size", "16px")
+		.attr('text-anchor', 'middle')
+		.text('0')
+		.attr('class', 'gen');
+
+	function draw_initial(start_ent) {
+		c_svg.selectAll("circle")
+			.data(seg_ent)
+			.enter()
+			.append("circle")
+			.attr("cx", function(d) { return x_axis_scale(d.position); })
+			.attr("cy", function(d) { return y_axis_scale(d.mean); }) 
+			.attr("r", function(d) { return 5 });	
+	}
+
+	function update_graph(new_ent, transition_len, n_step) {
+		c_svg.selectAll("circle")
+			.data(new_ent)
+			.transition()
+			.duration(transition_len)
+			.delay(n_step * transition_len)
+			.attr("cx", function(d) { return x_axis_scale(d.position); })
+			.attr("cy", function(d) { return y_axis_scale(d.mean); })
+			.attr("r", function(d) { return 5 });	
+
+	}
+
+</script> 
+
+<button id = "calc-info" onclick="evol_iter()">Run iterations</button>
+<button id = "animate" onclick="run_animation()">Wow!</button> <br>
+<input type="text" id="iter-to-do" size="10" value="10">
+<div id="spinning"></div>
+
+
+<script language="javascript">
+	var entropy_hist = [];
+	var gen_done = 0;
+	//
+	var spin_svg = d3.select("#spinning")
+		.append("svg")
+		.attr("width", 200)
+		.attr("height", 100);
+
+	spin_svg.append("circle")
+		.attr("cx", 30)
+		.attr("cy", 40)
+		.attr("r", 30)
+		.attr("fill", "red");
+
+	//
+	var lex = start_lex(400, 8);
+	var seg_ent = summary_stats(segmental_information(lex));
+
+	draw_initial(seg_ent);
+
+	
+	function evol_iter() {
+		var n = +document.getElementById("iter-to-do").value;
+		spin_svg.selectAll("circle")
+			.transition()
+			.duration(10)
+			.delay(5)
+			.attr("fill", "green");
+
+		entropy_hist = [];
+		for (var i = gen_done; i < n + gen_done; i++) {
+			lex = horizontal_shuffle(lex);
+			new_seg_ent = summary_stats(segmental_information(lex));
+			entropy_hist.push(new_seg_ent);
+			c_svg.selectAll('.gen')
+				.transition()
+				.duration(10)
+    			.text(i);
+		};
+		gen_done += n;
+		
+	};
+
+	function run_animation() {
+		for (var i = 0; i < entropy_hist.length; i++) {
+			new_ent = entropy_hist[i];
+			update_graph(new_ent, 20, i);
+		};
+		
+	};
+
+</script> 
+
+</body>
+</html>
