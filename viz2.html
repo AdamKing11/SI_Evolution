@@ -56,7 +56,7 @@ Yeah!
 		.attr("y", 70)
 		.attr("font-size", "16px")
 		.attr('text-anchor', 'middle')
-		.text('0')
+		.text('1')
 		.attr('class', 'gen');
 
 	function draw_initial(start_ent) {
@@ -84,14 +84,13 @@ Yeah!
 </script> 
 
 <button id = "calc-info" onclick="evol_iter()">Run iterations</button>
-<button id = "animate" onclick="run_animation()">Wow!</button> <br>
+<button id = "animate" onclick="run_animation()">Wow!</button> 
+<button id = "reset" onclick="reset_lex()">Oh no!</button> <br>
 <input type="text" id="iter-to-do" size="10" value="10">
 <div id="spinning"></div>
 
 
 <script language="javascript">
-	var entropy_hist = [];
-	var gen_done = 0;
 	//
 	var spin_svg = d3.select("#spinning")
 		.append("svg")
@@ -105,6 +104,8 @@ Yeah!
 		.attr("fill", "red");
 
 	//
+	var entropy_hist = [];
+	var gen_done = 1;
 	var lex = start_lex(400, 8);
 	var seg_ent = summary_stats(segmental_information(lex));
 
@@ -141,6 +142,17 @@ Yeah!
 		
 	};
 
+	function reset_lex() {
+		entropy_hist = [];
+		gen_done = 1;
+		lex = start_lex(400, 8);
+		seg_ent = summary_stats(segmental_information(lex));
+		update_graph(seg_ent, 20, 1);
+		c_svg.selectAll('.gen')
+			.transition()
+			.duration(10)
+    		.text(gen_done);
+	};
 </script> 
 
 </body>
