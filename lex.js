@@ -6,6 +6,29 @@ function range(n) {
 	return Array.apply(null, Array(n)).map(function (_, i) {return i;});
 };
 
+function normal_rand(m, sd) {
+	if (m === undefined) { m = 0; }
+	if (sd === undefined) { sd = 0; }
+	// using Box-Muller transformation, gives a normal distribution with mean = 0, sd = 1
+	var r = Math.sqrt(-2.0 * Math.log(Math.random())) * Math.cos(2.0 * Math.PI * Math.random());
+	return m + (r * sd);
+}
+
+function new_random_lex(lex_size, word_len_mean, nb_symbols) {
+	lex = [];
+	// just making this up
+	var word_len_sd = Math.max(1,Math.round(word_len_mean/3));
+	for (var i = 0; i < lex_size; i++) {
+		new_word_len = Math.round(normal_rand(word_len_mean, word_len_sd))
+		new_word = [];
+		for (var j = 0; j < new_word_len; j++) {
+			new_word.push(Math.floor(Math.random() * nb_symbols));
+		}
+		lex.push(new_word);
+	};
+	return lex;
+};
+
 function new_uniform_lex(lex_size, word_len) {
 	lex = [];
 	for (var i = 0; i < lex_size; i++) {
